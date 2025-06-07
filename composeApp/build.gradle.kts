@@ -57,9 +57,7 @@ kotlin {
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.0-beta01")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0") // This line
             implementation("com.google.firebase:firebase-common-ktx:20.3.3")
-            implementation("io.coil-kt:coil-compose:2.6.0")
-
-
+            implementation("io.coil-kt.coil3:coil-compose:3.2.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

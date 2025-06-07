@@ -79,9 +79,9 @@ actual fun rememberCameraLauncher(onResult: (ImagePickerResult) -> Unit): () -> 
             try {
                 val photoFile: File = createImageFile(context)
                 // Authority must match the one in AndroidManifest.xml and be dynamically fetched
-                val authority = "${BuildConfig.APPLICATION_ID}.fileprovider"
+                val authority = "com.devstudio.receipto.fileprovider"
                 tempUri = FileProvider.getUriForFile(context, authority, photoFile)
-                launcher.launch(tempUri)
+                launcher.launch(tempUri as Uri)
             } catch (e: Exception) {
                 onResult(ImagePickerResult(uri = null, byteArray = null, error = "Failed to create image file: ${e.message}"))
             }

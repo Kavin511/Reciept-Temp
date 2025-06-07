@@ -12,7 +12,7 @@ data class Receipt @OptIn(ExperimentalTime::class) constructor(
     val date: String = "",
     val reminderDate: String = "",
     val reason: String = "",
-    val imageUrl: String = "",
+    val imageUrl: String? = "",
     val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
     @kotlinx.serialization.Transient // Exclude from serialization
     var newImageByteArray: ByteArray? = null
