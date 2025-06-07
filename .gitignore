@@ -1,0 +1,122 @@
+# Gradle
+.gradle
+/build/
+/build
+/local.properties
+.gradle-enterprise/
+.idea/gradle/
+.idea/libraries/
+
+prebuilds/fullsdk-linux
+prebuilds/fullsdk-darwin
+out
+*.iml
+.gradle
+/local.properties
+.idea/
+.DS_Store
+build/
+/captures
+.externalNativeBuild
+.cxx
+.kotlin
+### General
+.gradle
+local.properties
+build/
+**/build
+**/*.db
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+*.hprof
+out/
+.fleet/
+
+### iOS Xcode generated ###
+iOSDemoApp/iOSDemoApp.xcodeproj/*
+!iOSDemoApp/iOSDemoApp.xcodeproj/project.pbxproj
+/.build
+/Packages
+xcuserdata/
+DerivedData/
+.swiftpm/configuration/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.netrc
+Package.resolved
+
+### Mac OS ###
+.DS_Store
+
+### Firebase ###
+/androidApp/google-services.json
+iOSDemoApp/iOSDemoApp/GoogleService-Info.plist
+
+# Ignoring the persistant lockfile until kotlin.js vulnerabilities are fixed
+# yarn.lock # but absent yarn.lock leads to inconsistent builds on CI, so let's keep it
+# Android Specific
+.idea/caches/build_file_checksums.ser
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/copyright/
+.idea/assetWizardSettings.xml
+.idea/dictionaries/
+.idea/render.xml
+.idea/shelf/
+.idea/watcherTasks.xml
+.idea/codeStyles/
+.idea/modules.xml
+.idea/vcs.xml
+.idea/uiDesigner.xml
+.idea/scopes/
+.idea/appInsightsSettings.xml
+.idea/navEditor.xml
+.idea/compiler.xml
+.idea/jarRepositories.xml
+.idea/runConfigurations.xml
+.idea/kotlinc.xml
+.idea/external_build_system_runtime_modules.xml
+
+# Build artifacts for Android
+**/*.apk
+**/*.aar
+**/*.ap_
+**/*.aab
+**/app/build/
+**/app/.cxx/
+**/app/.externalNativeBuild/
+**/app/App.iml
+**/app/local.properties
+
+# Android Studio and other IDEs
+.idea/
+.vscode/
+.DS_Store
+*.iml
+*.iws
+*.ipr
+*.idea_modules
+*.swp
+*~
+.classpath
+.project
+.settings/
+bin/
+gen/
+out/
+
+# Kotlin/JVM Specific
+**/*.class
+**/*.jar
+**/*.war
+**/*.nar
+**/*.zip
+**/*.tar.gz
+**/*.log
+.kotlin/
+.kotlin_gradle/
+/out/
+/libs
