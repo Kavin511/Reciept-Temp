@@ -15,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -58,18 +57,18 @@ fun ReceiptsScreen(
     val showEmptyState = searchQuery.isNotBlank() && receipts.isEmpty()
 
     Column(
-        modifier = Modifier.fillMaxSize().background(Color(0xFF1C1C1E))
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
     ) {
         TopAppBar(
             title = {
                 Text(
                     text = "Receipts",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
             }, colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color(0xFF1C1C1E)
+                containerColor = MaterialTheme.colorScheme.background
             )
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -103,46 +102,20 @@ fun EditReceiptScreen(
     navController: NavController, viewModel: ReceiptViewModel
 ) {
     val currentReceipt by viewModel.currentReceipt.collectAsState()
-//    val context = LocalContext.current
-
-    // Launcher for picking an image from gallery/files
-//    val pickImageLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.GetContent(),
-//        onResult = { uri: Uri? ->
-//            uri?.let {
-//                viewModel.uploadImage(it) // Upload the selected image
-//            }
-//        }
-//    )
-//
-//    // Launcher for taking a photo (basic)
-//    val takePhotoLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.TakePicturePreview(),
-//        onResult = { bitmap ->
-//            bitmap?.let {
-//                // Convert Bitmap to Uri or File for upload if needed
-//                // For simplicity, we'll skip actual bitmap to URI conversion for this example
-//                // and just use a dummy URI or let ViewModel handle it.
-//                // In a real app, save bitmap to temp file and get its Uri.
-//                val dummyUri = Uri.parse("android.resource://${context.packageName}/${R.drawable.dummy_photo_taken}") // Placeholder
-//                viewModel.uploadImage(dummyUri)
-//            }
-//        }
-//    )
 
     // Date Picker State
     val openDatePickerDialog = remember { mutableStateOf(false) }
 
     currentReceipt?.let { receipt ->
         Column(
-            modifier = Modifier.fillMaxSize().background(Color(0xFF1C1C1E))
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
         ) {
             // Top Bar
             TopAppBar(
                 title = {
                 Text(
                     text = if (receipt.id.isEmpty()) "Add New Receipt" else "Edit Receipt",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
@@ -150,17 +123,17 @@ fun EditReceiptScreen(
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         imageVector = Icons.Default.Close, // Using Close icon for 'X'
-                        contentDescription = "Close", tint = Color.White
+                        contentDescription = "Close", tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }, actions = {
                 TextButton(onClick = {
                     viewModel.addReceipt(Receipt(), { navController.popBackStack() })
                 }) {
-                    Text("Save", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Save", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                 }
             }, colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color(0xFF1C1C1E)
+                containerColor = MaterialTheme.colorScheme.background
             )
             )
 
@@ -172,13 +145,13 @@ fun EditReceiptScreen(
             ) {
                 // Receipt Name
                 val textFieldColors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF6DD26D),
-                    unfocusedBorderColor = Color(0xFF3A3A3C),
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    cursorColor = Color.White,
-                    focusedLabelColor = Color(0xFF6DD26D),
-                    unfocusedLabelColor = Color(0xFFAFAFAF)
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    cursorColor = MaterialTheme.colorScheme.onBackground,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 OutlinedTextField(
                     value = receipt.name,
@@ -215,7 +188,7 @@ fun EditReceiptScreen(
                         Icon(
                             imageVector = Icons.Default.CalendarMonth,
                             contentDescription = "Pick Date",
-                            tint = Color(0xFFAFAFAF),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.clickable { openDatePickerDialog.value = true })
                     },
                     colors = textFieldColors
@@ -254,29 +227,7 @@ fun EditReceiptScreen(
     }
 
     if (openDatePickerDialog.value) {
-//        val calendar = Calendar.getInstance()
-//        val initialYear = calendar.get(Calendar.YEAR)
-//        val initialMonth = calendar.get(Calendar.MONTH)
-//        val initialDay = calendar.get(Calendar.DAY_OF_MONTH)
-//
-//        val datePickerDialog = android.app.DatePickerDialog(
-//            context, { _: android.widget.DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-//                val selectedDate = Calendar.getInstance().apply {
-//                    set(year, month, dayOfMonth)
-//                }
-//                val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
-//                viewModel.updateCurrentReceipt(
-//                    currentReceipt!!.copy(
-//                        date = dateFormat.format(
-//                            selectedDate.time
-//                        )
-//                    )
-//                )
-//                openDatePickerDialog.value = false
-//            }, initialYear, initialMonth, initialDay
-//        )
-//        datePickerDialog.setOnCancelListener { openDatePickerDialog.value = false }
-//        datePickerDialog.show()
+        // DatePickerDialog related code was here
     }
 }
 
@@ -286,8 +237,8 @@ fun AttachmentInput(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth().height(180.dp) // Fixed height for consistency
-            .border(2.dp, Color(0xFF3A3A3C), RoundedCornerShape(8.dp))
-            .clip(RoundedCornerShape(8.dp)).background(Color(0xFF2C2C2E))
+            .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable { /* This makes the whole area clickable, but buttons are better for specific actions */ },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -295,13 +246,13 @@ fun AttachmentInput(
         Icon(
             imageVector = Icons.Default.Image,
             contentDescription = "Add Attachment",
-            tint = Color(0xFFAFAFAF),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(48.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Add Attachment",
-            color = Color(0xFFAFAFAF),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium
         )
@@ -311,17 +262,17 @@ fun AttachmentInput(
         ) {
             Button(
                 onClick = onPickImage,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6DD26D)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Upload Photo", color = Color.White)
+                Text("Upload Photo", color = MaterialTheme.colorScheme.onPrimary)
             }
             Button(
                 onClick = onTakePhoto,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6DD26D)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Take Photo", color = Color.White)
+                Text("Take Photo", color = MaterialTheme.colorScheme.onPrimary)
             }
         }
     }
@@ -333,10 +284,10 @@ fun AttachmentPreview(
 ) {
     Box(
         modifier = Modifier.fillMaxWidth().height(180.dp).clip(RoundedCornerShape(8.dp))
-            .background(Color(0xFF2C2C2E))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Image(
-            bitmap = ImageBitmap(1, 1),
+            bitmap = ImageBitmap(1, 1), // Placeholder, replace with actual image loading
             contentDescription = "Receipt Attachment Preview",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
@@ -344,44 +295,40 @@ fun AttachmentPreview(
         // Overlay for change/remove buttons
         Row(
             modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter)
-                .background(Color.Black.copy(alpha = 0.5f)).padding(8.dp),
+                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f)).padding(8.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(onClick = onChangeImage) {
-                Text("Change", color = Color.White, fontWeight = FontWeight.Medium)
+                Text("Change", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Medium) // Assuming scrim is dark, text is light
             }
             Divider(
-                color = Color.White.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                 modifier = Modifier.height(20.dp).width(1.dp)
             )
             TextButton(onClick = onRemoveImage) {
-                Text("Remove", color = Color.Red, fontWeight = FontWeight.Medium)
+                Text("Remove", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Medium)
             }
         }
     }
 }
 
-
-// Remaining composables (ReceiptItem, SearchBarComponent, NoResultsFoundSection, BottomNavigationBar)
-// are copied from previous responses for completeness.
-
 @Composable
 fun ReceiptItem(receipt: Receipt, onClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
-            .background(Color(0xFF2C2C2E))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable(onClick = onClick) // Make item clickable for navigation
             .padding(16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(
             modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)),
-            color = Color(0xFF3A3A3C)
+            color = MaterialTheme.colorScheme.outline // Or surfaceContainerHighest if more appropriate
         ) {
             Icon(
                 imageVector = Icons.Default.MailOutline,
                 contentDescription = "Receipt Icon",
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant, // Icon on a darker surface variant
                 modifier = Modifier.padding(8.dp)
             )
         }
@@ -391,15 +338,15 @@ fun ReceiptItem(receipt: Receipt, onClick: () -> Unit) {
         ) {
             Text(
                 text = receipt.name,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium,
                 fontSize = 18.sp
             )
             Text(
-                text = "$%.2f".format(receipt.amount), color = Color(0xFFAFAFAF), fontSize = 14.sp
+                text = "$%.2f".format(receipt.amount), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp
             )
             Text(
-                text = receipt.date, color = Color(0xFFAFAFAF), fontSize = 12.sp
+                text = receipt.date, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp
             )
         }
     }
@@ -412,7 +359,7 @@ fun SearchBarComponent(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth().height(50.dp).clip(RoundedCornerShape(8.dp)),
-        color = Color(0xFF2C2C2E),
+        color = MaterialTheme.colorScheme.surfaceVariant,
         shadowElevation = 0.dp
     ) {
         Row(
@@ -422,7 +369,7 @@ fun SearchBarComponent(
             Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = "Search",
-                tint = Color(0xFFAFAFAF),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -430,14 +377,14 @@ fun SearchBarComponent(
                 value = searchQuery,
                 onValueChange = onSearchQueryChange,
                 textStyle = LocalTextStyle.current.copy(
-                    color = Color.White, fontSize = 16.sp
+                    color = MaterialTheme.colorScheme.onSurface, fontSize = 16.sp
                 ),
                 singleLine = true,
                 modifier = Modifier.weight(1f),
                 decorationBox = { innerTextField ->
                     if (searchQuery.isEmpty()) {
                         Text(
-                            text = "Search receipts", color = Color(0xFFAFAFAF), fontSize = 16.sp
+                            text = "Search receipts", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 16.sp
                         )
                     }
                     innerTextField()
@@ -456,7 +403,7 @@ fun NoResultsFoundSection() {
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = "No results found",
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp,
             textAlign = TextAlign.Center
@@ -464,20 +411,20 @@ fun NoResultsFoundSection() {
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Try adjusting your search or adding new receipts.",
-            color = Color(0xFFAFAFAF),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 16.sp,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(24.dp))
         Button(
             onClick = { /* Handle Add Receipt button click */ },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2C2C2E)),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.fillMaxWidth(0.6f).height(50.dp)
         ) {
             Text(
                 text = "Add Receipt",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -488,49 +435,47 @@ fun NoResultsFoundSection() {
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     NavigationBar(
-        containerColor = Color(0xFF1C1C1E), modifier = Modifier.fillMaxWidth()
+        containerColor = MaterialTheme.colorScheme.surface, // Or background, depending on desired elevation effect
+        modifier = Modifier.fillMaxWidth()
     ) {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
+
         NavigationBarItem(
-            selected = true,
+            selected = currentRoute == RECEIPTS_LIST,
             onClick = { navController.navigate(RECEIPTS_LIST) },
             icon = {
                 Icon(
                     imageVector = Icons.Default.MailOutline,
-                    contentDescription = "Receipts",
-                    tint = Color.White
+                    contentDescription = "Receipts"
                 )
             },
-            label = {
-                Text(
-                    text = "Receipts", color = Color.White, fontSize = 12.sp
-                )
-            },
+            label = { Text("Receipts", fontSize = 12.sp) },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,
-                selectedTextColor = Color.White,
-                unselectedIconColor = Color(0xFFAFAFAF),
-                unselectedTextColor = Color(0xFFAFAFAF),
-                indicatorColor = Color.Transparent
+                selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f) // Subtle indicator
             )
         )
         NavigationBarItem(
-            selected = false, onClick = { navController.navigate(SETTINGS) }, icon = {
-            Icon(
-                imageVector = Icons.Default.Settings,
-                contentDescription = "Settings",
-                tint = Color(0xFFAFAFAF)
+            selected = currentRoute == SETTINGS,
+            onClick = { navController.navigate(SETTINGS) },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings"
+                )
+            },
+            label = { Text("Settings", fontSize = 12.sp) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                indicatorColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
             )
-        }, label = {
-            Text(
-                text = "Settings", color = Color(0xFFAFAFAF), fontSize = 12.sp
-            )
-        }, colors = NavigationBarItemDefaults.colors(
-            selectedIconColor = Color.White,
-            selectedTextColor = Color.White,
-            unselectedIconColor = Color(0xFFAFAFAF),
-            unselectedTextColor = Color(0xFFAFAFAF),
-            indicatorColor = Color.Transparent
-        )
         )
     }
 }
@@ -565,16 +510,16 @@ fun AppNavigation() {
     uiState.error?.let { error ->
         AlertDialog(
             onDismissRequest = { viewModel.clearMessage() },
-            title = { Text("Error", color = Color.White) },
-            text = { Text(error, color = Color.White) },
+            title = { Text("Error", color = MaterialTheme.colorScheme.onErrorContainer) },
+            text = { Text(error, color = MaterialTheme.colorScheme.onErrorContainer) },
             confirmButton = {
                 Button(onClick = { viewModel.clearMessage() }) {
                     Text("OK")
                 }
             },
-            containerColor = Color(0xFF2C2C2E),
-            textContentColor = Color.White,
-            titleContentColor = Color.White
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            textContentColor = MaterialTheme.colorScheme.onErrorContainer,
+            titleContentColor = MaterialTheme.colorScheme.onErrorContainer
         )
     }
 
@@ -597,14 +542,14 @@ fun AppNavigation() {
             if (currentRoute == Routes.RECEIPTS_LIST) {
                 FloatingActionButton(
                     onClick = { navController.navigate(Routes.ADD_RECEIPT) },
-                    containerColor = Color(0xFF6DD26D),
+                    containerColor = MaterialTheme.colorScheme.primary,
                     shape = CircleShape,
                     modifier = Modifier.size(60.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add Receipt",
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(30.dp)
                     )
                 }
@@ -642,10 +587,10 @@ fun AppNavigation() {
         // Show global loading indicator from ViewModel
         if (uiState.isLoading) {
             Box(
-                modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)),
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = Color.White)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         }
     }
