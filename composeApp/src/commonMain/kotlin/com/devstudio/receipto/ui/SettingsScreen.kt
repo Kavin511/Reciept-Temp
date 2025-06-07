@@ -48,12 +48,6 @@ fun SettingsScreen(
     Scaffold(topBar = {
         TopAppBar(
             title = { Text("Settings") },
-            navigationIcon = {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier.padding(horizontal = 16.dp).clickable { onBackClicked() })
-            },
         )
     }) { paddingValues ->
         LazyColumn(
