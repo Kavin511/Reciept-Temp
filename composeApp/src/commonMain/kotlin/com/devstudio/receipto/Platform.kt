@@ -1,0 +1,7 @@
+package com.devstudio.receipto
+
+interface Platform {
+    val name: String
+}
+
+expect fun getPlatform(): Platform

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "183325297551",
+    "project_id": "receipto-650d4",
+    "storage_bucket": "receipto-650d4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:183325297551:android:eb96141e11496c59a0d9fa",
+        "android_client_info": {
+          "package_name": "com.devstudio.receipto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzUJ0ZX8dqBT_Lal1aeOPWRWabOkSxC0M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
