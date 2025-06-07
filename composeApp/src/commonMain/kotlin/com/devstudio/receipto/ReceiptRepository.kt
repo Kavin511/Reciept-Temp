@@ -55,11 +55,13 @@ class ReceiptRepository {
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    suspend fun uploadImage(imageBytes: File): Result<String> {
+    suspend fun uploadImage(imageBytes: ByteArray): Result<String> { // Changed parameter
         return try {
-            val imageRef = storage.reference.child("receipts/${Uuid.random()}.jpg")
-            val uploadTask = imageRef.putFile(imageBytes)
-            Result.success("")
+            val fileName = "receipts/${Uuid.random()}.jpg"
+            val imageRef = storage.reference(fileName)
+            imageRef.putBytes(imageBytes) // Use putBytes
+            val downloadUrl = imageRef.getDownloadUrl() // getDownloadUrl is suspend fun
+            Result.success(downloadUrl)
         } catch (e: Exception) {
             Result.failure(e)
         }

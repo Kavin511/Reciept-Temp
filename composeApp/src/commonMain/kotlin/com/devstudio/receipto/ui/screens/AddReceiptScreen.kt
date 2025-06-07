@@ -48,7 +48,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,9 +61,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import coil.compose.AsyncImage
+import com.devstudio.receipto.core.rememberCameraLauncher
+import com.devstudio.receipto.core.rememberImagePickerLauncher
+// import com.devstudio.receipto.platform.ByteArrayParcelable // Will need to create this expect/actual // Removed
+import com.devstudio.receipto.platform.platformByteArrayToImageBitmap // Corrected import
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,17 +81,68 @@ import com.devstudio.receipto.ReceiptViewModel
 @Composable
 fun EditReceiptScreen(
     navController: NavController,
-    viewModel: ReceiptViewModel
+    viewModel: ReceiptViewModel,
+    receiptId: String?
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(receiptId) {
+        viewModel.loadReceipt(receiptId)
+    }
+
     val currentReceipt by viewModel.currentReceipt.collectAsState()
+    var localReceipt by remember { mutableStateOf(currentReceipt ?: Receipt()) }
+
+    LaunchedEffect(currentReceipt) {
+        currentReceipt?.let {
+            // Preserve newImageByteArray if it was set while currentReceipt was null (new receipt)
+            val newBytes = localReceipt.newImageByteArray
+            localReceipt = it.copy().apply {
+                if (newBytes != null && it.imageUrl.isEmpty()) { // Only keep new bytes if no imageUrl yet from loaded receipt
+                    newImageByteArray = newBytes
+                }
+            }
+        }
+    }
+
+    val imagePickerLauncher = rememberImagePickerLauncher { result ->
+        if (result.byteArray != null) {
+            localReceipt = localReceipt.copy(newImageByteArray = result.byteArray, imageUrl = null) // Clear old URL if new image is picked
+        } else if (result.error != null) {
+            println("Image pick error: ${result.error}")
+            // TODO: Show error message to user (e.g., via a Snackbar or Toast)
+        }
+    }
+
+    val cameraLauncher = rememberCameraLauncher { result ->
+        if (result.byteArray != null) {
+            localReceipt = localReceipt.copy(newImageByteArray = result.byteArray, imageUrl = null)
+        } else if (result.error != null) {
+            println("Camera capture error: ${result.error}")
+            // TODO: Show error message to user
+        }
+    }
+
     val openDatePickerDialog = remember { mutableStateOf(false) }
     val openReminderDatePickerDialog = remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    currentReceipt?.let { receipt ->
-        Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.clearMessage()
+        }
+    }
+
+    // Use localReceipt for UI, but ensure currentReceipt from ViewModel is observed for initial load
+    // and potential external updates if any (though direct modification is now via localReceipt).
+    // This ensures that when currentReceipt is loaded/updated from the ViewModel, localReceipt reflects that.
+    val receiptToDisplay = currentReceipt // Still needed to trigger recomposition when ViewModel's currentReceipt changes.
+
+    Box(modifier = Modifier.fillMaxSize()) { // Added Box to overlay CircularProgressIndicator
+        receiptToDisplay?.let { receipt -> // Now, operate on localReceipt for modifications
+            Scaffold(
+                modifier = Modifier
+                    .fillMaxSize()
                 .nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 TopAppBar(
@@ -129,8 +189,8 @@ fun EditReceiptScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 TextField(
-                    value = receipt.name,
-                    onValueChange = { viewModel.updateReceipt(receipt.copy(name = it)) },
+                    value = localReceipt.name,
+                    onValueChange = { newName -> localReceipt = localReceipt.copy(name = newName) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF3A3A3A),
@@ -154,10 +214,10 @@ fun EditReceiptScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 TextField(
-                    value = if (receipt.amount == 0.0) "" else receipt.amount.toString(),
+                    value = if (localReceipt.amount == 0.0) "" else localReceipt.amount.toString(),
                     onValueChange = {
                         val amount = it.toDoubleOrNull() ?: 0.0
-                        viewModel.updateReceipt(receipt.copy(amount = amount))
+                        localReceipt = localReceipt.copy(amount = amount)
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
@@ -183,8 +243,8 @@ fun EditReceiptScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 TextField(
-                    value = receipt.date,
-                    onValueChange = { },
+                    value = localReceipt.date,
+                    onValueChange = { /* Date is selected via dialog */ },
                     readOnly = true,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -219,8 +279,8 @@ fun EditReceiptScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 TextField(
-                    value = receipt.reminderDate ?: "",
-                    onValueChange = { },
+                    value = localReceipt.reminderDate ?: "",
+                    onValueChange = { /* Reminder Date is selected via dialog */ },
                     readOnly = true,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -255,8 +315,8 @@ fun EditReceiptScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 TextField(
-                    value = receipt.reason,
-                    onValueChange = { viewModel.updateReceipt(receipt.copy(reason = it)) },
+                    value = localReceipt.reason,
+                    onValueChange = { newReason -> localReceipt = localReceipt.copy(reason = newReason) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 100.dp),
@@ -273,64 +333,35 @@ fun EditReceiptScreen(
                 )
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Receipts Section
+                // Attachment Section
                 Text(
-                    text = "Receipts",
+                    text = "Attachment",
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                // Receipt Item
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Receipt Icon
-                    Box(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .background(
-                                Color(0xFF4CAF50),
-                                RoundedCornerShape(12.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Receipt,
-                            contentDescription = "Receipt",
-                            tint = Color.White,
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
+                val hasExistingImage = !localReceipt.imageUrl.isNullOrBlank()
+                val hasNewImage = localReceipt.newImageByteArray != null
 
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Text(
-                        text = "Receipt 1",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.weight(1f)
+                if (hasNewImage || hasExistingImage) {
+                    AttachmentPreview(
+                        imageByteArray = localReceipt.newImageByteArray,
+                        imageUrl = localReceipt.imageUrl,
+                        onRemoveImage = {
+                            localReceipt = localReceipt.copy(imageUrl = null, newImageByteArray = null)
+                        },
+                        onChangeImage = {
+                            imagePickerLauncher() // Simple re-trigger gallery pick
+                        }
                     )
-
-                    Button(
-                        onClick = { viewModel.updateReceipt(receipt.copy(imageUrl = "")) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF4A4A4A),
-                            contentColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(20.dp),
-                        modifier = Modifier.height(40.dp)
-                    ) {
-                        Text(
-                            text = "Remove",
-                            fontSize = 14.sp
-                        )
-                    }
+                } else {
+                    AttachmentInput(
+                        onPickImage = { imagePickerLauncher() },
+                        onTakePhoto = { cameraLauncher() }
+                    )
                 }
-
                 Spacer(modifier = Modifier.height(48.dp))
 
                 // Bottom Buttons
@@ -340,7 +371,7 @@ fun EditReceiptScreen(
                 ) {
                     Button(
                         onClick = {
-                            viewModel.deleteReceipt(receipt.id) {
+                            viewModel.deleteReceipt(localReceipt.id) {
                                 navController.popBackStack()
                             }
                         },
@@ -362,8 +393,14 @@ fun EditReceiptScreen(
 
                     Button(
                         onClick = {
-                            viewModel.addReceipt(receipt) {
-                                navController.popBackStack()
+                            val currentImageBytes = localReceipt.newImageByteArray
+                            if (currentImageBytes != null) {
+                                viewModel.uploadImage(currentImageBytes) { uploadedUrl ->
+                                    localReceipt = localReceipt.copy(imageUrl = uploadedUrl, newImageByteArray = null)
+                                    saveReceipt(viewModel, localReceipt, receiptId, navController)
+                                }
+                            } else {
+                                saveReceipt(viewModel, localReceipt, receiptId, navController)
                             }
                         },
                         modifier = Modifier
@@ -386,7 +423,20 @@ fun EditReceiptScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
+
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)) // Semi-transparent background
+                    .clickable(enabled = false, onClick = {}), // Block interactions
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
     }
+
 
     if (openDatePickerDialog.value) {
         // DatePickerDialog implementation
@@ -444,20 +494,54 @@ fun AttachmentInput(
     }
 }
 
+fun saveReceipt(
+    viewModel: ReceiptViewModel,
+    receipt: Receipt,
+    receiptId: String?,
+    navController: NavController
+) {
+    if (receiptId == null) {
+        viewModel.addReceipt(receipt) { navController.popBackStack() }
+    } else {
+        viewModel.updateReceipt(receipt) { navController.popBackStack() }
+    }
+}
+
 @Composable
 fun AttachmentPreview(
-    imageUrl: String, onRemoveImage: () -> Unit, onChangeImage: () -> Unit
+    imageByteArray: ByteArray?, // New: to hold byte array for preview
+    imageUrl: String?,      // Existing: for URL-based images
+    onRemoveImage: () -> Unit,
+    onChangeImage: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxWidth().height(180.dp).clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Image(
-            bitmap = ImageBitmap(1, 1), // Placeholder, replace with actual image loading
-            contentDescription = "Receipt Attachment Preview",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
+        if (imageByteArray != null) {
+            val bitmap = remember(imageByteArray) { platformByteArrayToImageBitmap(imageByteArray) }
+            Image(
+                bitmap = bitmap,
+                contentDescription = "Newly selected receipt attachment",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else if (!imageUrl.isNullOrBlank()) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "Receipt Attachment Preview",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+                // Optional: Add placeholder, error image
+                // placeholder = painterResource(R.drawable.placeholder),
+                // error = painterResource(R.drawable.error_image)
+            )
+        } else {
+            // Optional: Display a placeholder if neither is available
+            Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
+                Icon(Icons.Default.Image, "No image", modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
         // Overlay for change/remove buttons
         Row(
             modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter)

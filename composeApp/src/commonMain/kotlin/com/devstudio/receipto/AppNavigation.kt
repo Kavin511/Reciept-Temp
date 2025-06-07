@@ -167,17 +167,13 @@ fun AppNavigation() {
                 ReceiptsScreen(navController = navController, viewModel = viewModel)
             }
             composable(Routes.ADD_RECEIPT) {
-                LaunchedEffect(Unit) {
-                    viewModel.loadReceipt(null)
-                }
-                EditReceiptScreen(navController = navController, viewModel = viewModel)
+                // It's a new receipt, so pass null for receiptId
+                EditReceiptScreen(navController = navController, viewModel = viewModel, receiptId = null)
             }
             composable(Routes.EDIT_RECEIPT_WITH_ID) { backStackEntry ->
-                val receiptId = "0"
-                LaunchedEffect(receiptId) {
-                    viewModel.loadReceipt(receiptId)
-                }
-                EditReceiptScreen(navController = navController, viewModel = viewModel)
+                val receiptId = backStackEntry.arguments?.getString("receiptId")
+                // viewModel.loadReceipt is called from EditReceiptScreen's LaunchedEffect
+                EditReceiptScreen(navController = navController, viewModel = viewModel, receiptId = receiptId)
             }
             composable(SETTINGS) {
                 SettingsScreen()

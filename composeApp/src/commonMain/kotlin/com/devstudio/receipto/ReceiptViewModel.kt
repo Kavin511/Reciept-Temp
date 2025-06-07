@@ -70,24 +70,27 @@ class ReceiptViewModel(private val repository: ReceiptRepository = ReceiptReposi
                         isLoading = false, message = "Receipt added successfully"
                     )
                 }
+                onSuccess() // Call onSuccess
             }, onFailure = { error ->
                 _uiState.update { it.copy(isLoading = false, error = error.message) }
             })
         }
     }
 
-    fun updateReceipt(receipt: Receipt) {
+    fun updateReceipt(receipt: Receipt, onSuccess: () -> Unit) { // Add onSuccess
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            repository.updateReceipt(receipt).fold(onSuccess = {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false, message = "Receipt updated successfully"
-                    )
+            repository.updateReceipt(receipt).fold(
+                onSuccess = {
+                    _uiState.update {
+                        it.copy(isLoading = false, message = "Receipt updated successfully")
+                    }
+                    onSuccess() // Call onSuccess
+                },
+                onFailure = { error ->
+                    _uiState.update { it.copy(isLoading = false, error = error.message) }
                 }
-            }, onFailure = { error ->
-                _uiState.update { it.copy(isLoading = false, error = error.message) }
-            })
+            )
         }
     }
 
@@ -100,19 +103,22 @@ class ReceiptViewModel(private val repository: ReceiptRepository = ReceiptReposi
                         isLoading = false, message = "Receipt deleted successfully"
                     )
                 }
+                onSuccess() // Call onSuccess
             }, onFailure = { error ->
                 _uiState.update { it.copy(isLoading = false, error = error.message) }
             })
         }
     }
 
-    fun uploadImage(imageBytes: File, onSuccess: (String) -> Unit) {
+    fun uploadImage(imageBytes: ByteArray, onSuccess: (String) -> Unit) { // Changed parameter
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            repository.uploadImage(imageBytes).fold(onSuccess = { url ->
-                _uiState.update { it.copy(isLoading = false) }
-                onSuccess(url)
-            }, onFailure = { error ->
+            // Ensure repository.uploadImage can handle ByteArray
+            repository.uploadImage(imageBytes).fold( // Pass ByteArray
+                onSuccess = { url ->
+                    _uiState.update { it.copy(isLoading = false) }
+                    onSuccess(url)
+                }, onFailure = { error ->
                 _uiState.update { it.copy(isLoading = false, error = error.message) }
             })
         }
