@@ -25,7 +25,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
@@ -49,12 +48,6 @@ fun SettingsScreen(
     Scaffold(topBar = {
         TopAppBar(
             title = { Text("Settings") },
-            navigationIcon = {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier.padding(horizontal = 16.dp).clickable { onBackClicked() })
-            },
         )
     }) { paddingValues ->
         LazyColumn(
@@ -140,7 +133,7 @@ fun SettingsSectionHeader(text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.labelMedium,
-        color = Color.Gray, // Or a color that fits your theme for section headers
+        color = MaterialTheme.colorScheme.onSurfaceVariant, // Or a color that fits your theme for section headers
         modifier = Modifier.padding(vertical = 12.dp)
     )
 }
@@ -172,7 +165,7 @@ fun SettingsItem(
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray // Adjust as per your theme for subtitles
+                        color = MaterialTheme.colorScheme.onSurfaceVariant // Adjust as per your theme for subtitles
                     )
                 }
             }
@@ -191,7 +184,7 @@ fun VersionInfo(version: String) {
         Text(
             text = version,
             style = MaterialTheme.typography.labelMedium,
-            color = Color.Gray // Adjust as per your theme
+            color = MaterialTheme.colorScheme.onSurfaceVariant // Adjust as per your theme
         )
     }
 }
