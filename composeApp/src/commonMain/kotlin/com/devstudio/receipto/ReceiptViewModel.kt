@@ -91,7 +91,7 @@ class ReceiptViewModel(private val repository: ReceiptRepository = ReceiptReposi
         }
     }
 
-    fun deleteReceipt(receiptId: String) {
+    fun deleteReceipt(receiptId: String, onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             repository.deleteReceipt(receiptId).fold(onSuccess = {
