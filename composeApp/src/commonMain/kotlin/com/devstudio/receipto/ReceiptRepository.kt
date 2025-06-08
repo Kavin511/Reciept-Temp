@@ -28,6 +28,8 @@ class ReceiptRepository {
 
 
     suspend fun addReceipt(receipt: Receipt): Result<String> {
+        // This function currently saves receipt data to Firebase Firestore, acting as the primary data store.
+        // TODO: When subscription feature is added, include logic here to push data to the new cloud server if the user is subscribed.
         return try {
             val docRef = withContext(Dispatchers.IO) { receiptsCollection.add(receipt) }
             Result.success(docRef.id)
@@ -37,6 +39,8 @@ class ReceiptRepository {
     }
 
     suspend fun updateReceipt(receipt: Receipt): Result<Unit> {
+        // This function currently updates receipt data in Firebase Firestore.
+        // TODO: When subscription feature is added, include logic here to update data in the new cloud server if the user is subscribed.
         return try {
             withContext(Dispatchers.IO) { receiptsCollection.document(receipt.id).set(receipt) }
             Result.success(Unit)
@@ -46,6 +50,8 @@ class ReceiptRepository {
     }
 
     suspend fun deleteReceipt(receiptId: String): Result<Unit> {
+        // This function currently deletes receipt data from Firebase Firestore.
+        // TODO: When subscription feature is added, include logic here to delete data from the new cloud server if the user is subscribed.
         return try {
             receiptsCollection.document(receiptId).delete()
             Result.success(Unit)
@@ -56,6 +62,8 @@ class ReceiptRepository {
 
     @OptIn(ExperimentalUuidApi::class)
     suspend fun uploadImage(imageBytes: File): Result<String> {
+        // This function currently uploads image data to Firebase Storage.
+        // TODO: When subscription feature is added, include logic here to upload/sync image data to the new cloud server if the user is subscribed.
         return try {
             val imageRef = storage.reference.child("receipts/${Uuid.random()}.jpg")
             val uploadTask = imageRef.putFile(imageBytes)
