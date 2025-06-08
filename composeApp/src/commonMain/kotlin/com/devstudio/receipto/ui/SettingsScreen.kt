@@ -116,7 +116,7 @@ fun SettingsScreen(
             }
         }
     }
-}
+
 
 @Composable
 fun SettingsSectionHeader(text: String) {
