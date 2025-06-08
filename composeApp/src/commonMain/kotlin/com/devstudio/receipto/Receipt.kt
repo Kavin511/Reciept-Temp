@@ -12,12 +12,14 @@ data class Receipt @OptIn(ExperimentalTime::class) constructor(
     val date: String = "",
     val reminderDate: String = "",
     val reason: String = "",
-    val imageUrl: String? = "",
+    val imageUrl: String = "",
+    val currencyCode: String? = null, // Added currencyCode
     val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
     @kotlinx.serialization.Transient // Exclude from serialization
     var newImageByteArray: ByteArray? = null
 ) {
     // Custom equals and hashCode if newImageByteArray should not affect them
+    // Now including currencyCode in equals and hashCode
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -31,6 +33,7 @@ data class Receipt @OptIn(ExperimentalTime::class) constructor(
         if (reminderDate != other.reminderDate) return false
         if (reason != other.reason) return false
         if (imageUrl != other.imageUrl) return false
+        if (currencyCode != other.currencyCode) return false // Added currencyCode check
         if (createdAt != other.createdAt) return false
         // Not comparing newImageByteArray as it's transient and for UI/upload purposes
 
@@ -45,6 +48,7 @@ data class Receipt @OptIn(ExperimentalTime::class) constructor(
         result = 31 * result + reminderDate.hashCode()
         result = 31 * result + reason.hashCode()
         result = 31 * result + imageUrl.hashCode()
+        result = 31 * result + (currencyCode?.hashCode() ?: 0) // Added currencyCode
         result = 31 * result + createdAt.hashCode()
         // Not including newImageByteArray
         return result

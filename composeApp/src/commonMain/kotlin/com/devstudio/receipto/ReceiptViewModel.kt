@@ -11,11 +11,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.russhwolf.settings.Settings
+import com.devstudio.receipto.presentation.settings.currency.CurrencySelectionViewModel // For SELECTED_CURRENCY_CODE_KEY
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class ReceiptViewModel(private val repository: ReceiptRepository = ReceiptRepository()) :
-    ViewModel() {
+class ReceiptViewModel(
+    private val repository: ReceiptRepository, // Assuming ReceiptRepository is also injected/provided
+    private val settings: Settings // Added Settings dependency
+) : ViewModel() {
     private val _uiState = MutableStateFlow(ReceiptUiState())
     val uiState: StateFlow<ReceiptUiState> = _uiState.asStateFlow()
 
@@ -49,11 +53,13 @@ class ReceiptViewModel(private val repository: ReceiptRepository = ReceiptReposi
     @OptIn(ExperimentalUuidApi::class)
     fun loadReceipt(receiptId: String?) {
         viewModelScope.launch {
-            if (receiptId == null) {
+            if (receiptId == null) { // Creating a new receipt
                 val uid = Uuid.random().toString()
-                _currentReceipt.value = Receipt(id = uid)
+                val defaultCurrencyCode = settings.getStringOrNull(CurrencySelectionViewModel.SELECTED_CURRENCY_CODE_KEY)
+                _currentReceipt.value = Receipt(id = uid, currencyCode = defaultCurrencyCode) // Set currencyCode
             } else {
                 // Try to find existing receipt, or initialize new if not found (error state)
+                // When loading an existing receipt, its currencyCode should already be set.
                 _currentReceipt.value = receipts.value.find { it.id == receiptId } ?: Receipt(
                     id = Uuid.random().toString()
                 ) // Fallback to new if not found
