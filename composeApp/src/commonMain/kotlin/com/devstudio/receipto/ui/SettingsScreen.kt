@@ -16,12 +16,9 @@ import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Policy
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.runtime.* // Import all from runtime for remember, mutableStateOf, collectAsState, DisposableEffect
@@ -63,7 +60,6 @@ import coil.compose.AsyncImage
 
 
 // Main Composable for the Settings Screen
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController) {
     val appVersion = getAppVersion()
@@ -116,103 +112,91 @@ fun SettingsScreen(navController: NavController) {
             }
         )
     }
-
-
-    Scaffold(topBar = {
-        TopAppBar(
-            title = { Text("Settings") },
-            navigationIcon = { // Example: Using NavController to popBackStack for a back button
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
-                }
-            }
-        )
-    }) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(paddingValues).padding(horizontal = 16.dp)
-        ) {
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-                SettingsSectionHeader("General")
-                // "Account" item removed from here
-                // "Appearance" item removed
-                // "Notifications" item removed
-                Spacer(modifier = Modifier.height(24.dp)) // This spacer might be redundant if "General" becomes empty or has few items.
-                                                       // For now, keeping structure. If "General" has no items, header can be removed too.
-                                                       // Let's assume "General" might have other items later, or we remove this header if it's truly empty.
-                                                       // For this task, only specific items are removed.
-                SettingsSectionHeader("Receipt Management")
-                SettingsItem(
-                    icon = Icons.Default.AttachMoney,
-                    title = "Currency",
-                    subtitle = currencyUiState.selectedCurrency?.name ?: "Select currency",
-                    onClick = { showCurrencySheet = true }
-                )
-                SettingsItem(
-                    icon = Icons.Default.Category,
-                    title = "Categories",
-                    subtitle = "Configure receipt categorization",
-                    onClick = { navController.navigate(AppDestinations.CATEGORIES_ROUTE) } // Use constant
-                )
-                // "Storage" item hidden by commenting out
-                /*
-                SettingsItem(
-                    icon = Icons.Default.Cloud,
-                    title = "Storage",
-                    subtitle = "Manage receipt storage options",
-                    onClick = { /* TODO: navigator.push(StorageScreen) */ }
-                )
-                */
-                Spacer(modifier = Modifier.height(24.dp))
-                SettingsSectionHeader("Support")
-                SettingsItem(
-                    icon = Icons.Default.HelpOutline,
-                    title = "Help Center",
-                    subtitle = "", // No subtitle in image
-                    onClick = { /* TODO: navigator.push(HelpCenterScreen) */ }
-                )
-                SettingsItem(
-                    icon = Icons.Default.MailOutline,
-                    title = "Contact Us",
-                    subtitle = "", // No subtitle in image
-                    onClick = { /* TODO: Open external link or mail app */ }
-                )
-                SettingsItem(
-                    icon = Icons.Default.Description,
-                    title = "Terms of Service",
-                    subtitle = "", // No subtitle in image
-                    onClick = { /* TODO: navigator.push(TermsScreen) */ }
-                )
-                SettingsItem(
-                    icon = Icons.Default.Policy,
-                    title = "Privacy Policy",
-                    subtitle = "", // No subtitle in image
-                    onClick = { /* TODO: navigator.push(PrivacyPolicyScreen) */ }
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                AccountSection(
-                    uiState = accountUiState,
-                    onSignInClicked = { accountViewModel.triggerSignInWithGoogle() },
-                    onSignOutClicked = { accountViewModel.signOut() },
-                    onDeleteAccountClicked = { showDeleteConfirmDialog = true },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                VersionInfo("Version $appVersion")
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-        }
-
-        if (showCurrencySheet) {
-            CurrencySelectionBottomSheet(
-                uiState = currencyUiState,
-                onQueryChanged = currencyViewModel::onSearchQueryChanged,
-                onCurrencySelected = { currency ->
-                    currencyViewModel.onCurrencySelected(currency)
-                    // showCurrencySheet = false // ViewModel updates state, which should close sheet or be handled by sheet itself
-                },
-                onDismiss = { showCurrencySheet = false }
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(paddingValues).padding(horizontal = 16.dp)
+    ) {
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            SettingsSectionHeader("General")
+            // "Account" item removed from here
+            // "Appearance" item removed
+            // "Notifications" item removed
+            Spacer(modifier = Modifier.height(24.dp)) // This spacer might be redundant if "General" becomes empty or has few items.
+            // For now, keeping structure. If "General" has no items, header can be removed too.
+            // Let's assume "General" might have other items later, or we remove this header if it's truly empty.
+            // For this task, only specific items are removed.
+            SettingsSectionHeader("Receipt Management")
+            SettingsItem(
+                icon = Icons.Default.AttachMoney,
+                title = "Currency",
+                subtitle = currencyUiState.selectedCurrency?.name ?: "Select currency",
+                onClick = { showCurrencySheet = true }
             )
+            SettingsItem(
+                icon = Icons.Default.Category,
+                title = "Categories",
+                subtitle = "Configure receipt categorization",
+                onClick = { navController.navigate(AppDestinations.CATEGORIES_ROUTE) } // Use constant
+            )
+            // "Storage" item hidden by commenting out
+            /*
+            SettingsItem(
+                icon = Icons.Default.Cloud,
+                title = "Storage",
+                subtitle = "Manage receipt storage options",
+                onClick = { /* TODO: navigator.push(StorageScreen) */ }
+            )
+            */
+            Spacer(modifier = Modifier.height(24.dp))
+            SettingsSectionHeader("Support")
+            SettingsItem(
+                icon = Icons.Default.HelpOutline,
+                title = "Help Center",
+                subtitle = "", // No subtitle in image
+                onClick = { /* TODO: navigator.push(HelpCenterScreen) */ }
+            )
+            SettingsItem(
+                icon = Icons.Default.MailOutline,
+                title = "Contact Us",
+                subtitle = "", // No subtitle in image
+                onClick = { /* TODO: Open external link or mail app */ }
+            )
+            SettingsItem(
+                icon = Icons.Default.Description,
+                title = "Terms of Service",
+                subtitle = "", // No subtitle in image
+                onClick = { /* TODO: navigator.push(TermsScreen) */ }
+            )
+            SettingsItem(
+                icon = Icons.Default.Policy,
+                title = "Privacy Policy",
+                subtitle = "", // No subtitle in image
+                onClick = { /* TODO: navigator.push(PrivacyPolicyScreen) */ }
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            AccountSection(
+                uiState = accountUiState,
+                onSignInClicked = { accountViewModel.triggerSignInWithGoogle() },
+                onSignOutClicked = { accountViewModel.signOut() },
+                onDeleteAccountClicked = { showDeleteConfirmDialog = true },
+                modifier = Modifier.fillMaxWidth()
+            )
+            VersionInfo("Version $appVersion")
+            Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+
+
+    if (showCurrencySheet) {
+        CurrencySelectionBottomSheet(
+            uiState = currencyUiState,
+            onQueryChanged = currencyViewModel::onSearchQueryChanged,
+            onCurrencySelected = { currency ->
+                currencyViewModel.onCurrencySelected(currency)
+                // showCurrencySheet = false // ViewModel updates state, which should close sheet or be handled by sheet itself
+            },
+            onDismiss = { showCurrencySheet = false }
+        )
     }
 }
 
@@ -236,7 +220,10 @@ fun AccountSection(
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         } else if (uiState.currentUser != null) {
             // Signed-In UI
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 16.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 16.dp)
+            ) {
                 if (!uiState.currentUser.photoUrl.isNullOrBlank()) {
                     AsyncImage(
                         model = uiState.currentUser.photoUrl,
@@ -253,8 +240,14 @@ fun AccountSection(
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
-                    Text(uiState.currentUser.displayName ?: "N/A", style = MaterialTheme.typography.titleSmall)
-                    Text(uiState.currentUser.email ?: "N/A", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        uiState.currentUser.displayName ?: "N/A",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    Text(
+                        uiState.currentUser.email ?: "N/A",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
 
@@ -266,7 +259,11 @@ fun AccountSection(
                 // More specific loading check: are we loading AND is this specific action the one loading?
                 // For simplicity, if any uiState.isLoading is true, show indicator. Refine if needed.
                 if (uiState.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimary)
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 } else {
                     Text("Sign Out")
                 }
@@ -278,8 +275,12 @@ fun AccountSection(
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                 if (uiState.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimary)
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 } else {
                     Text("Delete Account")
                 }
@@ -301,7 +302,11 @@ fun AccountSection(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (uiState.isLoading) { // General loading for sign-in attempt
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimary)
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 } else {
                     Text("Sign In with Google")
                 }

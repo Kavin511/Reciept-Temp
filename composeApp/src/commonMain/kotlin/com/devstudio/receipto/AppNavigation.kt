@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Settings
@@ -18,7 +19,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -42,6 +46,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.savedstate.read
+import com.devstudio.receipto.Routes.RECEIPTS_LIST
 // import cafe.adriel.voyager.navigator.Navigator // Removed Voyager import
 // import cafe.adriel.voyager.transitions.SlideTransition // Removed Voyager import
 import com.devstudio.receipto.navigation.AppDestinations // Import new AppDestinations
@@ -99,9 +105,9 @@ fun BottomNavigationBar(navController: NavHostController) {
 object Routes {
     const val RECEIPTS_LIST = "receipts_list"
     const val EDIT_RECEIPT = "edit_receipt"
-    // const val EDIT_RECEIPT_WITH_ID = "edit_receipt/{receiptId}" // Defined in AppDestinations
-    // const val ADD_RECEIPT = "add_receipt" // Defined in AppDestinations
-    // const val SETTINGS = "setting" // Defined in AppDestinations
+    const val EDIT_RECEIPT_WITH_ID = "edit_receipt/{receiptId}" // Defined in AppDestinations
+    const val ADD_RECEIPT = "add_receipt" // Defined in AppDestinations
+    const val SETTINGS = "setting" // Defined in AppDestinations
 }
 // Removed old Routes object
 
@@ -133,17 +139,53 @@ fun AppNavigation() {
             titleContentColor = MaterialTheme.colorScheme.onErrorContainer
         )
     }
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    val topBarTitle = when (currentRoute) {
+        RECEIPTS_LIST -> "Receipts"
+        SETTINGS -> "Settings"
+        Routes.ADD_RECEIPT -> "Add Receipt"
+        Routes.EDIT_RECEIPT_WITH_ID -> "Edit Receipt"
+        else -> ""
+    }
+
+    val showAppBar = currentRoute in listOf(
+        RECEIPTS_LIST,
+        SETTINGS,
+        Routes.ADD_RECEIPT,
+        Routes.EDIT_RECEIPT_WITH_ID
+    )
+
     Scaffold(
+        topBar = {
+            if (showAppBar) {
+                TopAppBar(
+                    title = { Text(topBarTitle) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground
+                    ),
+                    navigationIcon = {
+                        if (currentRoute != RECEIPTS_LIST) {
+                            IconButton(onClick = { navController.popBackStack() }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back"
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-            val currentRoute =
-                navController.currentBackStackEntryAsState().value?.destination?.route
             if (currentRoute == AppDestinations.RECEIPTS_LIST_ROUTE || currentRoute == AppDestinations.SETTINGS_ROUTE) { // Use new constants
                 BottomNavigationBar(navController)
             }
         }, floatingActionButton = {
-            val currentRoute =
-                navController.currentBackStackEntryAsState().value?.destination?.route
             if (currentRoute == AppDestinations.RECEIPTS_LIST_ROUTE) { // Use new constant
                 FloatingActionButton(
                     onClick = { navController.navigate(AppDestinations.ADD_RECEIPT_ROUTE) }, // Use new constant
@@ -171,27 +213,36 @@ fun AppNavigation() {
             }
             composable(AppDestinations.ADD_RECEIPT_ROUTE) { // Use new constant
                 // It's a new receipt, so pass null for receiptId
-                EditReceiptScreen(navController = navController, viewModel = viewModel, receiptId = null)
+                EditReceiptScreen(
+                    navController = navController,
+                    viewModel = viewModel,
+                    receiptId = null
+                )
             }
             composable(AppDestinations.EDIT_RECEIPT_WITH_ID_ROUTE) { backStackEntry -> // Use new constant
-                val receiptId = backStackEntry.arguments?.getString(AppDestinations.EDIT_RECEIPT_WITH_ID_ARG) // Use new constant
-                // viewModel.loadReceipt is called from EditReceiptScreen's LaunchedEffect
-                EditReceiptScreen(navController = navController, viewModel = viewModel, receiptId = receiptId)
+                val receiptId = backStackEntry.arguments?.read {
+                    getString(AppDestinations.EDIT_RECEIPT_WITH_ID_ARG) // Use new constant}
+                    EditReceiptScreen(
+                        navController = navController,
+                        viewModel = viewModel,
+                        receiptId = receiptId
+                    )
+                }
+                composable(AppDestinations.SETTINGS_ROUTE) { // Use new constant
+                    SettingsScreen(navController = navController) // Pass NavController
+                }
+                composable(AppDestinations.CATEGORIES_ROUTE) { // Add CategoriesScreen destination
+                    CategoriesScreen(navController = navController)
+                }
             }
-            composable(AppDestinations.SETTINGS_ROUTE) { // Use new constant
-                SettingsScreen(navController = navController) // Pass NavController
-            }
-            composable(AppDestinations.CATEGORIES_ROUTE) { // Add CategoriesScreen destination
-                CategoriesScreen(navController = navController)
-            }
-        }
-        if (uiState.isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f)),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
             }
         }
     }
-}

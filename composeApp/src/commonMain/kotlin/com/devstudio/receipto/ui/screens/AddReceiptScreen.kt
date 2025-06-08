@@ -27,7 +27,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.Button
@@ -37,11 +36,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -125,7 +122,6 @@ fun EditReceiptScreen(
 
     val openDatePickerDialog = remember { mutableStateOf(false) }
     val openReminderDatePickerDialog = remember { mutableStateOf(false) }
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     DisposableEffect(Unit) {
         onDispose {
@@ -140,46 +136,15 @@ fun EditReceiptScreen(
 
     Box(modifier = Modifier.fillMaxSize()) { // Added Box to overlay CircularProgressIndicator
         receiptToDisplay?.let { receipt -> // Now, operate on localReceipt for modifications
-            Scaffold(
-                modifier = Modifier
-                    .fillMaxSize()
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Edit Receipt",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Close",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFF2C2C2C)
-                    ),
-                    scrollBehavior = scrollBehavior
-                )
-            },
-            containerColor = Color(0xFF1A1A1A)
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 16.dp)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Spacer(modifier = Modifier.height(24.dp))
-
+            // Column is now the root composable content when currentReceipt is available
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp) // Apply horizontal padding; vertical is handled by NavHost
+                .verticalScroll(rememberScrollState())
+                .background(Color(0xFF1A1A1A)) // Apply background color here if needed for the content area
+        ) {
+            Spacer(modifier = Modifier.height(24.dp))
                 // Name
                 Text(
                     text = "Name",
@@ -203,8 +168,6 @@ fun EditReceiptScreen(
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-
                 // Amount
                 Text(
                     text = "Amount",
@@ -232,8 +195,6 @@ fun EditReceiptScreen(
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-
                 // Date
                 Text(
                     text = "Date",
@@ -268,8 +229,6 @@ fun EditReceiptScreen(
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-
                 // Reminder Date
                 Text(
                     text = "Reminder Date",
@@ -304,8 +263,6 @@ fun EditReceiptScreen(
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-
                 // Reason
                 Text(
                     text = "Reason",
@@ -331,8 +288,6 @@ fun EditReceiptScreen(
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(modifier = Modifier.height(32.dp))
-
                 // Attachment Section
                 Text(
                     text = "Attachment",
@@ -362,7 +317,6 @@ fun EditReceiptScreen(
                         onTakePhoto = { cameraLauncher() }
                     )
                 }
-                Spacer(modifier = Modifier.height(48.dp))
 
                 // Bottom Buttons
                 Row(
