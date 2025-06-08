@@ -154,9 +154,15 @@ fun EditReceiptScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 TextField(
-                    value = if (receipt.amount == 0.0) "" else receipt.amount.toString(),
+                    value = if (receipt.amount == 0.0) "" else {
+                        if (receipt.amount % 1.0 == 0.0) {
+                            receipt.amount.toInt().toString()
+                        } else {
+                            receipt.amount.toString()
+                        }
+                    },
                     onValueChange = {
-                        val amount = it.toDoubleOrNull() ?: 0.0
+                        val amount = if (it.isEmpty()) 0.0 else it.toDoubleOrNull() ?: receipt.amount
                         viewModel.updateReceipt(receipt.copy(amount = amount))
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
