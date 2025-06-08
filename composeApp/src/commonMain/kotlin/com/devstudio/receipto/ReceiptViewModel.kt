@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -18,6 +19,11 @@ class ReceiptViewModel(private val repository: ReceiptRepository = ReceiptReposi
     ViewModel() {
     private val _uiState = MutableStateFlow(ReceiptUiState())
     val uiState: StateFlow<ReceiptUiState> = _uiState.asStateFlow()
+
+    private var addReceiptJob: Job? = null
+    private var updateReceiptJob: Job? = null
+    private var deleteReceiptJob: Job? = null
+    private var uploadImageJob: Job? = null
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
@@ -62,7 +68,8 @@ class ReceiptViewModel(private val repository: ReceiptRepository = ReceiptReposi
     }
 
     fun addReceipt(receipt: Receipt, onSuccess: () -> Unit) {
-        viewModelScope.launch {
+        addReceiptJob?.cancel()
+        addReceiptJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             repository.addReceipt(receipt).fold(onSuccess = {
                 _uiState.update {
@@ -77,7 +84,8 @@ class ReceiptViewModel(private val repository: ReceiptRepository = ReceiptReposi
     }
 
     fun updateReceipt(receipt: Receipt) {
-        viewModelScope.launch {
+        updateReceiptJob?.cancel()
+        updateReceiptJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             repository.updateReceipt(receipt).fold(onSuccess = {
                 _uiState.update {
@@ -92,7 +100,8 @@ class ReceiptViewModel(private val repository: ReceiptRepository = ReceiptReposi
     }
 
     fun deleteReceipt(receiptId: String, onSuccess: () -> Unit = {}) {
-        viewModelScope.launch {
+        deleteReceiptJob?.cancel()
+        deleteReceiptJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             repository.deleteReceipt(receiptId).fold(onSuccess = {
                 _uiState.update {
@@ -107,7 +116,8 @@ class ReceiptViewModel(private val repository: ReceiptRepository = ReceiptReposi
     }
 
     fun uploadImage(imageBytes: File, onSuccess: (String) -> Unit) {
-        viewModelScope.launch {
+        uploadImageJob?.cancel()
+        uploadImageJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             repository.uploadImage(imageBytes).fold(onSuccess = { url ->
                 _uiState.update { it.copy(isLoading = false) }
@@ -120,5 +130,18 @@ class ReceiptViewModel(private val repository: ReceiptRepository = ReceiptReposi
 
     fun clearMessage() {
         _uiState.update { it.copy(message = null, error = null) }
+    }
+
+    fun cancelOngoingUserDataOperations() {
+        addReceiptJob?.cancel()
+        updateReceiptJob?.cancel()
+        deleteReceiptJob?.cancel()
+        uploadImageJob?.cancel()
+        _uiState.update { it.copy(isLoading = false) }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        cancelOngoingUserDataOperations()
     }
 }
