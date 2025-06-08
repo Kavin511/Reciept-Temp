@@ -52,6 +52,7 @@ kotlin {
             implementation(libs.firebase.firestore) // This line
             implementation(libs.firebase.common)// This line
             implementation(libs.firebase.storage) // This line
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
             implementation(libs.material.icons.extended)
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.0-beta01")

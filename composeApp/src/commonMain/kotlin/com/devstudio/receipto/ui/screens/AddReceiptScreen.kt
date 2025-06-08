@@ -1,10 +1,5 @@
 package com.devstudio.receipto.ui.screens
 
-/**
- * @Author: Kavin
- * @Date: 07/06/25
- */
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,6 +48,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,8 +61,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.devstudio.receipto.Receipt
 import com.devstudio.receipto.ReceiptViewModel
+import com.devstudio.receipto.utils.CommonDateFormatter
+import com.devstudio.receipto.utils.DateSelectionStatus
+import com.devstudio.receipto.utils.PlatformSpecificDatePicker
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,8 +73,8 @@ fun EditReceiptScreen(
     viewModel: ReceiptViewModel
 ) {
     val currentReceipt by viewModel.currentReceipt.collectAsState()
-    val openDatePickerDialog = remember { mutableStateOf(false) }
-    val openReminderDatePickerDialog = remember { mutableStateOf(false) }
+    var showReceiptDatePicker by remember { mutableStateOf(false) }
+    var showExpiryDatePicker by remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     currentReceipt?.let { receipt ->
@@ -120,7 +118,6 @@ fun EditReceiptScreen(
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Name
                 Text(
                     text = "Name",
                     color = Color.White,
@@ -145,7 +142,6 @@ fun EditReceiptScreen(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Amount
                 Text(
                     text = "Amount",
                     color = Color.White,
@@ -174,9 +170,8 @@ fun EditReceiptScreen(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Date
                 Text(
-                    text = "Date",
+                    text = "Receipt Date", // Changed
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
@@ -188,13 +183,13 @@ fun EditReceiptScreen(
                     readOnly = true,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { openDatePickerDialog.value = true },
+                        .clickable { showReceiptDatePicker = true },
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Default.CalendarMonth,
-                            contentDescription = "Pick Date",
+                            contentDescription = "Pick Receipt Date", // Changed
                             tint = Color.Gray,
-                            modifier = Modifier.clickable { openDatePickerDialog.value = true }
+                            modifier = Modifier.clickable { showReceiptDatePicker = true }
                         )
                     },
                     colors = TextFieldDefaults.colors(
@@ -210,9 +205,8 @@ fun EditReceiptScreen(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Reminder Date
                 Text(
-                    text = "Reminder Date",
+                    text = "Expiry Date", // Changed
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
@@ -224,13 +218,13 @@ fun EditReceiptScreen(
                     readOnly = true,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { openReminderDatePickerDialog.value = true },
+                        .clickable { showExpiryDatePicker = true },
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Default.CalendarMonth,
-                            contentDescription = "Pick Reminder Date",
+                            contentDescription = "Pick Expiry Date", // Changed
                             tint = Color.Gray,
-                            modifier = Modifier.clickable { openReminderDatePickerDialog.value = true }
+                            modifier = Modifier.clickable { showExpiryDatePicker = true }
                         )
                     },
                     colors = TextFieldDefaults.colors(
@@ -246,7 +240,6 @@ fun EditReceiptScreen(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Reason
                 Text(
                     text = "Reason",
                     color = Color.White,
@@ -273,7 +266,6 @@ fun EditReceiptScreen(
                 )
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Receipts Section
                 Text(
                     text = "Receipts",
                     color = Color.White,
@@ -282,12 +274,10 @@ fun EditReceiptScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                // Receipt Item
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Receipt Icon
                     Box(
                         modifier = Modifier
                             .size(64.dp)
@@ -299,14 +289,12 @@ fun EditReceiptScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Receipt,
-                            contentDescription = "Receipt",
+                            contentDescription = "Receipt Icon",
                             tint = Color.White,
                             modifier = Modifier.size(32.dp)
                         )
                     }
-
                     Spacer(modifier = Modifier.width(16.dp))
-
                     Text(
                         text = "Receipt 1",
                         color = Color.White,
@@ -314,7 +302,6 @@ fun EditReceiptScreen(
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.weight(1f)
                     )
-
                     Button(
                         onClick = { viewModel.updateReceipt(receipt.copy(imageUrl = "")) },
                         colors = ButtonDefaults.buttonColors(
@@ -330,10 +317,8 @@ fun EditReceiptScreen(
                         )
                     }
                 }
-
                 Spacer(modifier = Modifier.height(48.dp))
 
-                // Bottom Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -359,7 +344,6 @@ fun EditReceiptScreen(
                             fontWeight = FontWeight.Medium
                         )
                     }
-
                     Button(
                         onClick = {
                             viewModel.addReceipt(receipt) {
@@ -382,107 +366,38 @@ fun EditReceiptScreen(
                         )
                     }
                 }
-
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }
 
-    if (openDatePickerDialog.value) {
-        // DatePickerDialog implementation
-    }
-
-    if (openReminderDatePickerDialog.value) {
-        // DatePickerDialog implementation
-    }
-}
-
-@Composable
-fun AttachmentInput(
-    onPickImage: () -> Unit, onTakePhoto: () -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth().height(180.dp) // Fixed height for consistency
-            .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
-            .clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable { /* This makes the whole area clickable, but buttons are better for specific actions */ },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.Image,
-            contentDescription = "Add Attachment",
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(48.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Add Attachment",
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(
-            horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.fillMaxWidth()
-        ) {
-            Button(
-                onClick = onPickImage,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text("Upload Photo", color = MaterialTheme.colorScheme.onPrimary)
-            }
-            Button(
-                onClick = onTakePhoto,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text("Take Photo", color = MaterialTheme.colorScheme.onPrimary)
-            }
+    if (showReceiptDatePicker) {
+        currentReceipt?.let { receipt ->
+            PlatformSpecificDatePicker(
+                initialTimestamp = CommonDateFormatter.parseDateStringToTimestamp(receipt.date),
+                onDateSelected = { status ->
+                    if (status is DateSelectionStatus.SELECTED) {
+                        val formattedDate = CommonDateFormatter.formatTimestampToString(status.selection.first)
+                        viewModel.updateReceipt(receipt.copy(date = formattedDate))
+                    }
+                    showReceiptDatePicker = false
+                }
+            )
         }
     }
-}
 
-@Composable
-fun AttachmentPreview(
-    imageUrl: String, onRemoveImage: () -> Unit, onChangeImage: () -> Unit
-) {
-    Box(
-        modifier = Modifier.fillMaxWidth().height(180.dp).clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Image(
-            bitmap = ImageBitmap(1, 1), // Placeholder, replace with actual image loading
-            contentDescription = "Receipt Attachment Preview",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-        // Overlay for change/remove buttons
-        Row(
-            modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter)
-                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f)).padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextButton(onClick = onChangeImage) {
-                Text(
-                    "Change",
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontWeight = FontWeight.Medium
-                ) // Assuming scrim is dark, text is light
-            }
-            Divider(
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                modifier = Modifier.height(20.dp).width(1.dp)
+    if (showExpiryDatePicker) {
+        currentReceipt?.let { receipt ->
+            PlatformSpecificDatePicker(
+                initialTimestamp = CommonDateFormatter.parseDateStringToTimestamp(receipt.reminderDate),
+                onDateSelected = { status ->
+                    if (status is DateSelectionStatus.SELECTED) {
+                        val formattedDate = CommonDateFormatter.formatTimestampToString(status.selection.first)
+                        viewModel.updateReceipt(receipt.copy(reminderDate = formattedDate))
+                    }
+                    showExpiryDatePicker = false
+                }
             )
-            TextButton(onClick = onRemoveImage) {
-                Text(
-                    "Remove",
-                    color = MaterialTheme.colorScheme.error,
-                    fontWeight = FontWeight.Medium
-                )
-            }
         }
     }
 }
