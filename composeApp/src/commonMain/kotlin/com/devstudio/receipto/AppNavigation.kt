@@ -39,15 +39,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+// import androidx.lifecycle.viewmodel.compose.viewModel // Replaced with KMP ViewModel factory
+import com.devstudio.receipto.presentation.receipt.rememberReceiptViewModel // KMP ViewModel factory
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.savedstate.read
 import com.devstudio.receipto.Routes.RECEIPTS_LIST
 import com.devstudio.receipto.Routes.SETTINGS
-import com.devstudio.receipto.ui.SettingsScreen
+// import cafe.adriel.voyager.navigator.Navigator // Removed Voyager import
+// import cafe.adriel.voyager.transitions.SlideTransition // Removed Voyager import
+import com.devstudio.receipto.navigation.AppDestinations // Import new AppDestinations
+import com.devstudio.receipto.ui.SettingsScreen // SettingsScreen will be directly called again
+import com.devstudio.receipto.ui.screens.CategoriesScreen
 import com.devstudio.receipto.ui.screens.EditReceiptScreen
 import com.devstudio.receipto.ui.screens.ReceiptsScreen
 
@@ -60,8 +66,8 @@ fun BottomNavigationBar(navController: NavHostController) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
         NavigationBarItem(
-            selected = currentRoute == RECEIPTS_LIST,
-            onClick = { navController.navigate(RECEIPTS_LIST) },
+            selected = currentRoute == AppDestinations.RECEIPTS_LIST_ROUTE, // Use new constant
+            onClick = { navController.navigate(AppDestinations.RECEIPTS_LIST_ROUTE) }, // Use new constant
             icon = {
                 Icon(
                     imageVector = Icons.Default.MailOutline,
@@ -78,8 +84,8 @@ fun BottomNavigationBar(navController: NavHostController) {
             )
         )
         NavigationBarItem(
-            selected = currentRoute == SETTINGS,
-            onClick = { navController.navigate(SETTINGS) },
+            selected = currentRoute == AppDestinations.SETTINGS_ROUTE, // Use new constant
+            onClick = { navController.navigate(AppDestinations.SETTINGS_ROUTE) }, // Use new constant
             icon = {
                 Icon(
                     imageVector = Icons.Default.Settings,
@@ -101,16 +107,17 @@ fun BottomNavigationBar(navController: NavHostController) {
 object Routes {
     const val RECEIPTS_LIST = "receipts_list"
     const val EDIT_RECEIPT = "edit_receipt"
-    const val EDIT_RECEIPT_WITH_ID = "edit_receipt/{receiptId}"
-    const val ADD_RECEIPT = "add_receipt"
-    const val SETTINGS = "setting"
+    const val EDIT_RECEIPT_WITH_ID = "edit_receipt/{receiptId}" // Defined in AppDestinations
+    const val ADD_RECEIPT = "add_receipt" // Defined in AppDestinations
+    const val SETTINGS = "setting" // Defined in AppDestinations
 }
+// Removed old Routes object
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val viewModel: ReceiptViewModel = viewModel()
+    val viewModel: ReceiptViewModel = rememberReceiptViewModel() // Use KMP ViewModel factory
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     uiState.message?.let { message ->
@@ -177,13 +184,13 @@ fun AppNavigation() {
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-            if (currentRoute == RECEIPTS_LIST || currentRoute == SETTINGS) {
+            if (currentRoute == AppDestinations.RECEIPTS_LIST_ROUTE || currentRoute == AppDestinations.SETTINGS_ROUTE) { // Use new constants
                 BottomNavigationBar(navController)
             }
         }, floatingActionButton = {
-            if (currentRoute == RECEIPTS_LIST) {
+            if (currentRoute == AppDestinations.RECEIPTS_LIST_ROUTE) { // Use new constant
                 FloatingActionButton(
-                    onClick = { navController.navigate(Routes.ADD_RECEIPT) },
+                    onClick = { navController.navigate(AppDestinations.ADD_RECEIPT_ROUTE) }, // Use new constant
                     containerColor = MaterialTheme.colorScheme.primary,
                     shape = CircleShape,
                     modifier = Modifier.size(60.dp)
@@ -200,32 +207,41 @@ fun AppNavigation() {
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = RECEIPTS_LIST,
+            startDestination = AppDestinations.RECEIPTS_LIST_ROUTE, // Use new constant
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable(RECEIPTS_LIST) {
+            composable(AppDestinations.RECEIPTS_LIST_ROUTE) { // Use new constant
                 ReceiptsScreen(navController = navController, viewModel = viewModel)
             }
-            composable(Routes.ADD_RECEIPT) {
-                LaunchedEffect(Unit) {
-                    viewModel.loadReceipt(null)
-                }
-                EditReceiptScreen(navController = navController, viewModel = viewModel)
+            composable(AppDestinations.ADD_RECEIPT_ROUTE) { // Use new constant
+                // It's a new receipt, so pass null for receiptId
+                EditReceiptScreen(
+                    navController = navController,
+                    viewModel = viewModel,
+                    receiptId = null
+                )
             }
-            composable(Routes.EDIT_RECEIPT_WITH_ID) { backStackEntry ->
-                val receiptId = "0"
-                LaunchedEffect(receiptId) {
-                    viewModel.loadReceipt(receiptId)
+            composable(AppDestinations.EDIT_RECEIPT_WITH_ID_ROUTE) { backStackEntry -> // Use new constant
+                val receiptId = backStackEntry.arguments?.read {
+                    getString(AppDestinations.EDIT_RECEIPT_WITH_ID_ARG) // Use new constant
                 }
-                EditReceiptScreen(navController = navController, viewModel = viewModel)
+                EditReceiptScreen(
+                    navController = navController,
+                    viewModel = viewModel,
+                    receiptId = receiptId
+                )
             }
-            composable(SETTINGS) {
-                SettingsScreen()
+            composable(AppDestinations.SETTINGS_ROUTE) { // Use new constant
+                SettingsScreen(navController = navController) // Pass NavController
+            }
+            composable(AppDestinations.CATEGORIES_ROUTE) { // Add CategoriesScreen destination
+                CategoriesScreen(navController = navController)
             }
         }
         if (uiState.isLoading) {
             Box(
-                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f)),
+                modifier = Modifier.fillMaxSize()
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)

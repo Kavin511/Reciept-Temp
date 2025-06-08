@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    kotlin("plugin.serialization") version "1.9.0" // This lines
+    kotlin("plugin.serialization") version "1.9.0"
     id("com.google.gms.google-services") version "4.4.1"
 }
 
@@ -18,7 +18,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -29,19 +29,25 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
-        
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-            api(platform("com.google.firebase:firebase-bom:33.15.0")) // This line to add the firebase bom
-
-
+            api(platform("com.google.firebase:firebase-bom:33.15.0"))
+            implementation("com.google.firebase:firebase-auth-ktx")
+            implementation("com.google.android.gms:play-services-auth:21.1.1")
+            implementation(libs.ktor.client.okhttp)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
@@ -49,16 +55,16 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(compose.components.resources)
-            implementation(libs.firebase.firestore) // This line
-            implementation(libs.firebase.common)// This line
-            implementation(libs.firebase.storage) // This line
+            implementation(libs.firebase.firestore)
+            implementation(libs.firebase.common)
+            implementation(libs.firebase.storage)
+            implementation(libs.firebase.auth)
             implementation(libs.material.icons.extended)
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.0-beta01")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0") // This line
-            implementation("com.google.firebase:firebase-common-ktx:20.3.3")
-
-
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+            implementation(libs.coil.compose)
+            implementation(libs.multiplatform.settings.no.arg)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -96,4 +102,3 @@ android {
 dependencies {
     debugImplementation(compose.uiTooling)
 }
-

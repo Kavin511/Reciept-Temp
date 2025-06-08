@@ -36,6 +36,17 @@ androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
 material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "materialIconsExtendedVersion" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version = "2.9.0-beta01" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version = "2.9.0" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version = "22.3.1" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version = "2.3.10" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version = "2.3.10" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version = "3.2.0" }
+multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version = "1.0.0" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version = "2.3.10" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version = "2.3.10" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version = "2.3.10" }
+firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebaseFirestore" }
 
 
 [plugins]
@@ -44,3 +55,8 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+
+#:composeApp:iosArm64Main: Could not resolve org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4.
+#Required by:
+#project :composeApp > com.google.firebase:firebase-common-ktx:20.3.3
+#Above error started coming after adding id("com.google.gms.google-services") version "4.4.1"
