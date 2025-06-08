@@ -16,12 +16,9 @@ import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Policy
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,10 +27,8 @@ import androidx.compose.ui.unit.dp
 
 
 // Main Composable for the Settings Screen
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onBackClicked: () -> Unit = {},
     onAccountClicked: () -> Unit = {},
     onAppearanceClicked: () -> Unit = {},
     onNotificationsClicked: () -> Unit = {},
@@ -45,17 +40,12 @@ fun SettingsScreen(
     onTermsOfServiceClicked: () -> Unit = {},
     onPrivacyPolicyClicked: () -> Unit = {},
 ) {
-    Scaffold(topBar = {
-        TopAppBar(
-            title = { Text("Settings") },
-        )
-    }) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(paddingValues).padding(horizontal = 16.dp)
-        ) {
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-                SettingsSectionHeader("General")
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
+    ) {
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            SettingsSectionHeader("General")
                 SettingsItem(
                     icon = Icons.Default.AccountCircle,
                     title = "Account",

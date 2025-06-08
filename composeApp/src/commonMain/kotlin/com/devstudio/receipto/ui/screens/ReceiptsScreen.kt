@@ -42,19 +42,6 @@ fun ReceiptsScreen(
     Column(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
     ) {
-        TopAppBar(
-            title = {
-                Text(
-                    text = "Receipts",
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
-            }, colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background
-            )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
         SearchBarComponent(
             searchQuery = searchQuery,
             onSearchQueryChange = viewModel::updateSearchQuery,
