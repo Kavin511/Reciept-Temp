@@ -8,14 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
-import com.devstudio.receipto.BuildConfig // Assuming BuildConfig is available for applicationId
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 actual class ImagePickerResult(
-    actual val uri: Uri?, // android.net.Uri
+    actual val uri: Any?,
     actual val byteArray: ByteArray?,
     actual val error: String?
 )
@@ -79,9 +78,9 @@ actual fun rememberCameraLauncher(onResult: (ImagePickerResult) -> Unit): () -> 
             try {
                 val photoFile: File = createImageFile(context)
                 // Authority must match the one in AndroidManifest.xml and be dynamically fetched
-                val authority = "${BuildConfig.APPLICATION_ID}.fileprovider"
+                val authority = "com.devstudio.receipto.fileprovider"
                 tempUri = FileProvider.getUriForFile(context, authority, photoFile)
-                launcher.launch(tempUri)
+                launcher.launch(tempUri as Uri)
             } catch (e: Exception) {
                 onResult(ImagePickerResult(uri = null, byteArray = null, error = "Failed to create image file: ${e.message}"))
             }

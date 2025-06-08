@@ -4,8 +4,6 @@ import com.devstudio.receipto.domain.model.Currency
 import com.devstudio.receipto.domain.usecase.GetCurrenciesUseCase
 import com.devstudio.receipto.util.Resource
 import com.russhwolf.settings.Settings
-import com.russhwolf.settings.coroutines.getStringOrNullFlow
-import com.russhwolf.settings.coroutines.putStringFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -40,16 +38,16 @@ class CurrencySelectionViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            // Observe selected currency changes from settings
-            settings.getStringOrNullFlow(SELECTED_CURRENCY_CODE_KEY)
-                .onEach { code ->
-                    val currentLoadedCurrencies = _uiState.value.currencies
-                    if (currentLoadedCurrencies.isNotEmpty()) {
-                        _uiState.update {
-                            it.copy(selectedCurrency = currentLoadedCurrencies.find { c -> c.code == code })
-                        }
-                    }
-                }.launchIn(viewModelScope)
+            val currentLoadedCurrencies = _uiState.value.currencies
+            if (currentLoadedCurrencies.isNotEmpty()) {
+                _uiState.update {
+                    it.copy(selectedCurrency = currentLoadedCurrencies.find { c ->
+                        c.code == settings.getStringOrNull(
+                            SELECTED_CURRENCY_CODE_KEY
+                        )
+                    })
+                }
+            }
 
 
             // Fetch all currencies
@@ -57,22 +55,28 @@ class CurrencySelectionViewModel(
                 when (result) {
                     is Resource.Success -> {
                         val allCurrencies = result.data ?: emptyList()
-                        val previouslySelectedCode = settings.getStringOrNull(SELECTED_CURRENCY_CODE_KEY)
+                        val previouslySelectedCode =
+                            settings.getStringOrNull(SELECTED_CURRENCY_CODE_KEY)
                         _uiState.update {
                             it.copy(
                                 currencies = allCurrencies,
-                                filteredCurrencies = filterCurrencies(allCurrencies, it.searchQuery),
+                                filteredCurrencies = filterCurrencies(
+                                    allCurrencies,
+                                    it.searchQuery
+                                ),
                                 selectedCurrency = allCurrencies.find { c -> c.code == previouslySelectedCode },
                                 isLoading = false,
                                 error = null
                             )
                         }
                     }
+
                     is Resource.Error -> {
                         _uiState.update {
                             it.copy(isLoading = false, error = result.message)
                         }
                     }
+
                     is Resource.Loading -> {
                         _uiState.update { it.copy(isLoading = true) }
                     }
@@ -96,8 +100,8 @@ class CurrencySelectionViewModel(
         }
         return currencies.filter {
             it.name.contains(query, ignoreCase = true) ||
-            it.code.contains(query, ignoreCase = true) ||
-            (it.symbol.contains(query, ignoreCase = true))
+                    it.code.contains(query, ignoreCase = true) ||
+                    (it.symbol.contains(query, ignoreCase = true))
         }
     }
 

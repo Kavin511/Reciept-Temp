@@ -24,7 +24,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 @OptIn(ExperimentalForeignApi::class, ExperimentalCoroutinesApi::class)
-actual class AuthService actual constructor() { // No constructor context needed for basic FIRAuth, GIDSignIn uses shared instance
+actual class AuthService constructor() { // No constructor context needed for basic FIRAuth, GIDSignIn uses shared instance
 
     private val firAuth: FIRAuth = FIRAuth.auth()!!
 

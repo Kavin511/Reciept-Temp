@@ -18,18 +18,18 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import com.devstudio.receipto.R // Assuming R.string.default_web_client_id exists
 
-actual class AuthService actual constructor(private val context: Context) {
+actual class AuthService constructor(private val context: Context) {
 
     private val firebaseAuth: FirebaseAuth = Firebase.auth
     private val googleSignInClient: GoogleSignInClient by lazy {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(context.getString(R.string.default_web_client_id)) // Must exist in strings.xml
+            .requestIdToken(context.getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
         GoogleSignIn.getClient(context, gso)
     }
 
-    actual companion object {
+    companion object {
         // This method would be called by the Android Composable/Activity to get the intent
         fun getGoogleSignInIntent(context: Context): Intent {
             // Ensure this GSO is configured the same way as the one for the client instance
@@ -61,7 +61,7 @@ actual class AuthService actual constructor(private val context: Context) {
                 }
 
             } catch (e: ApiException) {
-                if (e.statusCode == com.google.android.gms.common.api.CommonStatusCodes.SIGN_IN_CANCELLED) {
+                if (e.statusCode == com.google.android.gms.common.api.CommonStatusCodes.CANCELED) {
                     AuthResult.Cancelled
                 } else {
                     AuthResult.Error("Google Sign-In failed: ${e.localizedMessage} (Code: ${e.statusCode})")

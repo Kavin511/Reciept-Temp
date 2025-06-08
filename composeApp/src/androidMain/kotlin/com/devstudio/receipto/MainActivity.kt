@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.devstudio.receipto.platform.AndroidAppContextProvider
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
@@ -23,6 +24,7 @@ class MainActivity : ComponentActivity() {
             setLocalCacheSettings(persistentCacheSettings {})
         }
         db.firestoreSettings = settings
+        AndroidAppContextProvider.applicationContext = applicationContext
         setContent {
             App()
         }

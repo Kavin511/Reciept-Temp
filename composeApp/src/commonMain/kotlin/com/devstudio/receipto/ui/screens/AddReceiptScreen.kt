@@ -53,19 +53,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import coil.compose.AsyncImage
 import com.devstudio.receipto.core.rememberCameraLauncher
 import com.devstudio.receipto.core.rememberImagePickerLauncher
-// import com.devstudio.receipto.platform.ByteArrayParcelable // Will need to create this expect/actual // Removed
 import com.devstudio.receipto.platform.platformByteArrayToImageBitmap // Corrected import
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -73,8 +71,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.devstudio.receipto.Receipt
 import com.devstudio.receipto.ReceiptViewModel
+import coil3.compose.AsyncImage
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditReceiptScreen(
     navController: NavController,
@@ -95,7 +93,7 @@ fun EditReceiptScreen(
             // Preserve newImageByteArray if it was set while currentReceipt was null (new receipt)
             val newBytes = localReceipt.newImageByteArray
             localReceipt = it.copy().apply {
-                if (newBytes != null && it.imageUrl.isEmpty()) { // Only keep new bytes if no imageUrl yet from loaded receipt
+                if (newBytes != null && it.imageUrl.isNullOrEmpty()) { // Only keep new bytes if no imageUrl yet from loaded receipt
                     newImageByteArray = newBytes
                 }
             }

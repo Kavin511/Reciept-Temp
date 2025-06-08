@@ -59,7 +59,7 @@ class ReceiptRepository {
         return try {
             val fileName = "receipts/${Uuid.random()}.jpg"
             val imageRef = storage.reference(fileName)
-            imageRef.putBytes(imageBytes) // Use putBytes
+            imageRef.putFile(createTempFileFromByteArray(imageBytes))
             val downloadUrl = imageRef.getDownloadUrl() // getDownloadUrl is suspend fun
             Result.success(downloadUrl)
         } catch (e: Exception) {
@@ -67,3 +67,4 @@ class ReceiptRepository {
         }
     }
 }
+expect fun createTempFileFromByteArray(fileByteArray: ByteArray): File

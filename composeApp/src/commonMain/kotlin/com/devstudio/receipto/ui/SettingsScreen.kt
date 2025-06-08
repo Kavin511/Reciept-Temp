@@ -48,16 +48,17 @@ import com.devstudio.receipto.auth.AuthResult // Required for Android specific p
 
 // This expect/actual will provide the necessary platform specifics for launching sign-in
 // and handling its result.
+
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import coil3.compose.AsyncImage
+
 @Composable
 expect fun HandlePlatformSignIn(
     shouldTriggerSignIn: Boolean,
     onSignInLaunched: () -> Unit,
     viewModel: AccountViewModel // Or specific callback: (AuthResult) -> Unit
 )
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
-import coil.compose.AsyncImage
-
 
 // Main Composable for the Settings Screen
 @Composable
@@ -113,7 +114,7 @@ fun SettingsScreen(navController: NavController) {
         )
     }
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(paddingValues).padding(horizontal = 16.dp)
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
     ) {
         item {
             Spacer(modifier = Modifier.height(16.dp))

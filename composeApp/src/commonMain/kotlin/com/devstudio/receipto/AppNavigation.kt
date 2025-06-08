@@ -48,10 +48,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.savedstate.read
 import com.devstudio.receipto.Routes.RECEIPTS_LIST
+import com.devstudio.receipto.Routes.SETTINGS
 // import cafe.adriel.voyager.navigator.Navigator // Removed Voyager import
 // import cafe.adriel.voyager.transitions.SlideTransition // Removed Voyager import
 import com.devstudio.receipto.navigation.AppDestinations // Import new AppDestinations
 import com.devstudio.receipto.ui.SettingsScreen // SettingsScreen will be directly called again
+import com.devstudio.receipto.ui.screens.CategoriesScreen
 import com.devstudio.receipto.ui.screens.EditReceiptScreen
 import com.devstudio.receipto.ui.screens.ReceiptsScreen
 
@@ -221,28 +223,29 @@ fun AppNavigation() {
             }
             composable(AppDestinations.EDIT_RECEIPT_WITH_ID_ROUTE) { backStackEntry -> // Use new constant
                 val receiptId = backStackEntry.arguments?.read {
-                    getString(AppDestinations.EDIT_RECEIPT_WITH_ID_ARG) // Use new constant}
-                    EditReceiptScreen(
-                        navController = navController,
-                        viewModel = viewModel,
-                        receiptId = receiptId
-                    )
+                    getString(AppDestinations.EDIT_RECEIPT_WITH_ID_ARG) // Use new constant
                 }
-                composable(AppDestinations.SETTINGS_ROUTE) { // Use new constant
-                    SettingsScreen(navController = navController) // Pass NavController
-                }
-                composable(AppDestinations.CATEGORIES_ROUTE) { // Add CategoriesScreen destination
-                    CategoriesScreen(navController = navController)
-                }
+                EditReceiptScreen(
+                    navController = navController,
+                    viewModel = viewModel,
+                    receiptId = receiptId
+                )
             }
-            if (uiState.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                }
+            composable(AppDestinations.SETTINGS_ROUTE) { // Use new constant
+                SettingsScreen(navController = navController) // Pass NavController
+            }
+            composable(AppDestinations.CATEGORIES_ROUTE) { // Add CategoriesScreen destination
+                CategoriesScreen(navController = navController)
+            }
+        }
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         }
     }
+}

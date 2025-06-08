@@ -105,25 +105,6 @@ class AccountViewModel(
         }
     }
 
-    // Removed the generic handleGoogleSignInIntent as the Android specific Composable will handle it.
-
-    fun signOut() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null, requiresReAuthentication = false) }
-            when (val result = authService.signOut()) {
-                is AuthResult.Success -> {
-                    // User state (currentUser = null) will be updated by observeAuthState.
-                    // isLoading will also be reset by observeAuthState if it emits.
-                    // Explicitly clear loading here to be sure.
-                     _uiState.update { it.copy(isLoading = false) }
-                }
-                is AuthResult.Error -> _uiState.update {
-                    it.copy(isLoading = false, error = result.message)
-                }
-            }
-        }
-    }
-
     fun signOut() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null, requiresReAuthentication = false) }
