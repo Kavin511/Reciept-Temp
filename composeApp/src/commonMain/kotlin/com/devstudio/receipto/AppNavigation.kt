@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Settings
@@ -18,7 +19,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -130,17 +134,53 @@ fun AppNavigation() {
             titleContentColor = MaterialTheme.colorScheme.onErrorContainer
         )
     }
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    val topBarTitle = when (currentRoute) {
+        RECEIPTS_LIST -> "Receipts"
+        SETTINGS -> "Settings"
+        Routes.ADD_RECEIPT -> "Add Receipt"
+        Routes.EDIT_RECEIPT_WITH_ID -> "Edit Receipt"
+        else -> ""
+    }
+
+    val showAppBar = currentRoute in listOf(
+        RECEIPTS_LIST,
+        SETTINGS,
+        Routes.ADD_RECEIPT,
+        Routes.EDIT_RECEIPT_WITH_ID
+    )
+
     Scaffold(
+        topBar = {
+            if (showAppBar) {
+                TopAppBar(
+                    title = { Text(topBarTitle) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground
+                    ),
+                    navigationIcon = {
+                        if (currentRoute != RECEIPTS_LIST) {
+                            IconButton(onClick = { navController.popBackStack() }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back"
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-            val currentRoute =
-                navController.currentBackStackEntryAsState().value?.destination?.route
             if (currentRoute == RECEIPTS_LIST || currentRoute == SETTINGS) {
                 BottomNavigationBar(navController)
             }
         }, floatingActionButton = {
-            val currentRoute =
-                navController.currentBackStackEntryAsState().value?.destination?.route
             if (currentRoute == RECEIPTS_LIST) {
                 FloatingActionButton(
                     onClick = { navController.navigate(Routes.ADD_RECEIPT) },

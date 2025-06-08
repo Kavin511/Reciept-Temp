@@ -27,7 +27,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.Button
@@ -37,17 +36,13 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -58,7 +53,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -77,49 +71,17 @@ fun EditReceiptScreen(
     val currentReceipt by viewModel.currentReceipt.collectAsState()
     val openDatePickerDialog = remember { mutableStateOf(false) }
     val openReminderDatePickerDialog = remember { mutableStateOf(false) }
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     currentReceipt?.let { receipt ->
-        Scaffold(
+        // Column is now the root composable content when currentReceipt is available
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Edit Receipt",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Close",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFF2C2C2C)
-                    ),
-                    scrollBehavior = scrollBehavior
-                )
-            },
-            containerColor = Color(0xFF1A1A1A)
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 16.dp)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Spacer(modifier = Modifier.height(24.dp))
-
+                .padding(horizontal = 16.dp) // Apply horizontal padding; vertical is handled by NavHost
+                .verticalScroll(rememberScrollState())
+                .background(Color(0xFF1A1A1A)) // Apply background color here if needed for the content area
+        ) {
+            Spacer(modifier = Modifier.height(24.dp))
                 // Name
                 Text(
                     text = "Name",
@@ -143,8 +105,6 @@ fun EditReceiptScreen(
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-
                 // Amount
                 Text(
                     text = "Amount",
@@ -172,8 +132,6 @@ fun EditReceiptScreen(
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-
                 // Date
                 Text(
                     text = "Date",
@@ -208,8 +166,6 @@ fun EditReceiptScreen(
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-
                 // Reminder Date
                 Text(
                     text = "Reminder Date",
@@ -244,8 +200,6 @@ fun EditReceiptScreen(
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-
                 // Reason
                 Text(
                     text = "Reason",
@@ -271,8 +225,6 @@ fun EditReceiptScreen(
                     ),
                     shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(modifier = Modifier.height(32.dp))
-
                 // Receipts Section
                 Text(
                     text = "Receipts",
@@ -331,8 +283,6 @@ fun EditReceiptScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(48.dp))
-
                 // Bottom Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -385,7 +335,6 @@ fun EditReceiptScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
             }
-        }
     }
 
     if (openDatePickerDialog.value) {
